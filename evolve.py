@@ -1,3 +1,6 @@
+# every bird has weights, and with them it decides when to jump,
+# for example by how far it is from the ground, the top and the pipe.
+# the birds that get further are crossed and their children are a bit changed
 import sys
 import random
 import pygame
@@ -5,6 +8,7 @@ import pygame
 from game import *
 from brain import Brain, crossover
 
+# here we set how many birds, how strong the mutation is and when to stop
 POP_SIZE = 60
 MUT_RATE = 0.15
 MAX_GEN = 100
@@ -14,7 +18,7 @@ fast = "fast" in sys.argv  # no fps limit
 
 
 def get_inputs(bird, pipes):
-    # next pipe
+    # here we collect what the bird sees: its height, distance to the pipe and so on
     pipe = pipes[0]
     if pipe.x + 52 < bird.x:
         pipe = pipes[1]
@@ -57,7 +61,7 @@ def play_generation(brains, gen_num):
             if bird.brain.think(get_inputs(bird, pipes)):
                 bird.jump()
             bird.move()
-            bird.fitness += 1
+            bird.fitness += 1  # the bird gets points while it survives
 
         update_pipes(pipes)
         base_x = (base_x - SPEED) % -48
@@ -70,7 +74,7 @@ def play_generation(brains, gen_num):
         for bird in alive:
             if bird_dead(bird, pipes):
                 bird.alive = False
-                # minus points if far from the gap
+                # and a penalty, bigger if the mistake was bigger (far from the gap)
                 pipe = pipes[0] if pipes[0].x + 52 > bird.x else pipes[1]
                 bird.fitness -= abs(bird.y - (pipe.gap_y + PIPE_GAP / 2)) / 5
 
@@ -84,6 +88,8 @@ def play_generation(brains, gen_num):
 
 
 def next_generation(birds):
+    # like natural selection: the strongest birds have children,
+    # if a mutation is lucky the child gets more children, if not it dies out
     birds.sort(key=lambda b: b.fitness, reverse=True)
     best = [b.brain for b in birds[:10]]
 
@@ -96,6 +102,9 @@ def next_generation(birds):
 
 
 def main():
+    # makes 60 random birds, then every generation: play, find the best and the average score,
+    # save the brain of the best bird if it's a new record, stop if it flew far enough,
+    # if not make the next generation with mutations
     brains = [Brain() for _ in range(POP_SIZE)]
     record = -1
 
