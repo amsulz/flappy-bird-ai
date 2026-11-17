@@ -39,5 +39,6 @@ A saved network is included. New training starts from random networks and can ov
 
 - add a graph of the training results
 - improve collision detection
+- back up `best_brain.json` automatically before new training
 
 Sprites are from [FlapPyBird](https://github.com/sourabhv/FlapPyBird).
